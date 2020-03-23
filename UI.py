@@ -1,18 +1,19 @@
 from tkinter import *
 from tkinter import scrolledtext
 from tkinter.ttk import Combobox, Style
-import tkinter.font as tkFont
+import tkinter.font as tkfont
 from datetime import *
 import time
 import threading
 import os, signal
 
-class UI(object):
+
+class Ui(object):
     def __init__(self, master):
         self.parent = master
 
         # fontStyle
-        self.fontStyle = tkFont.Font(family='JetBrains Mono', size=14)
+        self.fontStyle = tkfont.Font(family='JetBrains Mono', size=14)
 
         # 程序退出标识符
         self.exit = True
@@ -44,7 +45,6 @@ class UI(object):
         self.COM_ComBox_value = StringVar()
         self.COM_ComBox_list = Combobox(self.rootFrame, width=22, textvariable=self.COM_ComBox_value,
                                         font=self.fontStyle, state='readonly')
-        self.COM_ComBox_list['value'] = ('a', 'b', 'c')
 
         # 波特率 Label & 下拉框
         # Label
@@ -57,16 +57,15 @@ class UI(object):
         self.buteRate_ComBox_list['value'] = ("1200", "2400", "4800", "9600", "14400", "19200", "38400",
                                               "56000", "576000", "115200")
 
-
         # 数据位 Label & 下拉框
         # Label
         self.bitsize_Label = Label(self.rootFrame, width=10, bd=1, relief='groove', text='数据位:',
                                    font=self.fontStyle, bg='#2B2B2B', fg='#3E86A0')
         # 下拉框
-        self.bitsize_ComBox_value = StringVar()
+        self.bitsize_ComBox_value = StringVar
         self.bitsize_ComBox_list = Combobox(self.rootFrame, width=22, textvariable=self.bitsize_ComBox_value,
                                              font=self.fontStyle, state='readonly')
-        self.bitsize_ComBox_list['value'] = ('5', '6', '7', '8')
+        self.bitsize_ComBox_list['value'] = ["5", "6", "7", "8"]
 
         # 校验位 Label & 下拉框
         # Label
@@ -77,6 +76,16 @@ class UI(object):
         self.bitCheck_ComBox_list = Combobox(self.rootFrame, width=22, textvariable=self.bitCheck_ComBox_value,
                                                font=self.fontStyle, state='readonly')
         self.bitCheck_ComBox_list['value'] = ("Even", "Mark", "None", "Odd", "Space")
+
+        # 停止位 Label & 下拉框
+        # Label
+        self.stop_Label = Label(self.rootFrame, width=10, bd=1, relief='groove', text='停止位:',
+                                    font=self.fontStyle, bg='#2B2B2B', fg='#3E86A0')
+        # 下拉框
+        self.stop_ComBox_value = StringVar()
+        self.stop_ComBox_list = Combobox(self.rootFrame, width=22, textvariable=self.stop_ComBox_value,
+                                             font=self.fontStyle, state='readonly')
+        self.stop_ComBox_list['value'] = ("One", "Two", "OnePointFive")
 
         # 打开串口 按钮
         self.openBtn = Button(self.rootFrame, font=self.fontStyle, text='打开串口', bd=1, width=33, relief='groove',
@@ -104,7 +113,7 @@ class UI(object):
                                background='#F08080')
 
         # 接收文本框
-        self.receive_text = scrolledtext.ScrolledText(self.receiveFrame, width=48,height=10, bd=1, wrap=WORD)
+        self.receive_text = scrolledtext.ScrolledText(self.receiveFrame, width=31, height=10, bd=1, wrap=WORD, font=self.fontStyle)
 
         # 发送 Label
         self.sendLabel = Label(self.sendFrame, width=33, bd=1, relief='groove', text='发送数据',
@@ -126,16 +135,13 @@ class UI(object):
                                background='#F08080')
 
         # 接收文本框
-        self.send_text = scrolledtext.ScrolledText(self.sendFrame, width=48, height=10, bd=1, wrap=WORD)
+        self.send_text = scrolledtext.ScrolledText(self.sendFrame, width=31, height=10, bd=1, wrap=WORD, font=self.fontStyle)
 
-
+        self.receive_text.tag_config("Date", font=self.fontStyle, foreground='#b8860b')
+        self.receive_text.tag_config("Text", font=self.fontStyle, foreground='#d2691e')
 
         # run
         self.run()
-
-        # 动态显示时间的线程
-        self.datetime_threading = threading.Thread(target=self.threading_datetime).start()
-
 
 
     # run
@@ -150,10 +156,10 @@ class UI(object):
         self.rootFrame.grid(column=0, row=0)
 
         # receive grid
-        self.receiveFrame.grid(column=0, row=7, columnspan=3)
+        self.receiveFrame.grid(column=0, row=8, columnspan=3)
 
         # send grid
-        self.sendFrame.grid(column=0, row=11, columnspan=3)
+        self.sendFrame.grid(column=0, row=12, columnspan=3)
 
         # option 表格布局
         self.rootFrame.grid(column=0, row=0)
@@ -170,8 +176,6 @@ class UI(object):
         self.buteRate_ComBox_list.grid(column=1, row=2, columnspan=2)
         self.buteRate_ComBox_list.current(3)
 
-        #Label(self.rootFrame, width=20, bg='#2B2B2B').grid(column=0, row=0)
-
         # 数据位 表格布局
         self.bitsize_Label.grid(column=0, row=3)
         self.bitsize_ComBox_list.grid(column=1, row=3, columnspan=2)
@@ -181,6 +185,11 @@ class UI(object):
         self.bitCheck_Label.grid(column=0, row=4)
         self.bitCheck_ComBox_list.grid(column=1, row=4, columnspan=2)
         self.bitCheck_ComBox_list.current(2)
+
+        # 停止位 表格布局
+        self.stop_Label.grid(column=0, row=5)
+        self.stop_ComBox_list.grid(column=1, row=5, columnspan=2)
+        self.stop_ComBox_list.current(0)
 
         # 下拉框 颜色
         combostyle = Style()
@@ -198,10 +207,10 @@ class UI(object):
         combostyle.theme_use('combostyle')
 
         # 打开串口 布局
-        self.openBtn.grid(column=0, row=5, columnspan=3)
+        self.openBtn.grid(column=0, row=6, columnspan=3)
 
-        # 打开串口 布局
-        self.closeBtn.grid(column=0, row=6, columnspan=3)
+        # 关闭串口 布局
+        self.closeBtn.grid(column=0, row=7, columnspan=3)
 
         # receive Label
         self.receive_Label.grid(column=0, row=0, columnspan=3)
@@ -234,11 +243,13 @@ class UI(object):
         self.send_text.grid(column=0, row=2, columnspan=3, rowspan=2)
 
         # 消息文本框布局
-        self.Message_Label.grid(column=0, row=16, columnspan=3)
+        self.Message_Label.grid(column=0, row=17, columnspan=3)
+
+        # 动态显示时间的线程
+        threading.Thread(target=self.threading_datetime).start()
 
         # 退出程序时的回调
         self.parent.protocol("WM_DELETE_WINDOW", self.callbackClose)
-
 
     # 动态显示时间
     def threading_datetime(self):
@@ -255,7 +266,7 @@ class UI(object):
 
 
 
-if __name__ == "__main__":
+"""if __name__ == "__main__":
     rt = Tk()
     ui = UI(rt)
-    rt.mainloop()
+    rt.mainloop()"""
